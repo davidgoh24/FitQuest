@@ -1,0 +1,90 @@
+.sidebar-container {
+  width: 190px;
+  height: 100vh;
+  background-color: #fbf9f2;
+  padding-top: 6rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  font-family: 'Poppins', sans-serif;
+  display: flex;
+  flex-direction: column;
+  z-index:9999;
+}
+
+.sidebar-nav a {
+    font-size: 14px;
+    display: block;
+    padding: 0.5rem 1.5rem;
+    text-decoration: none;
+    color: #333;
+    transition: all 0.2s ease;
+}
+
+.sidebar-nav a:hover,
+.sidebar-nav a.active {
+  background-color: #ffcb05;
+  color: #001f5f;
+}
+
+.sidebar-logout {
+  position: absolute;
+  bottom: 2rem;
+  left: 0rem;
+  margin-top: auto;
+  padding-top: 2rem;
+}
+
+.sidebar-logout button {
+  background: none;
+  border: none;
+  color: black;
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+  text-align: left;
+  padding: 0.5rem 1.5rem;
+  width: 190px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.2s ease;
+  margin-bottom: 5rem;
+  gap: 1rem;
+}
+
+.sidebar-logout button:hover {
+  background-color: #ffcb05;
+}
+
+.logout-icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Modal styles for Logout confirmation */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.logout-confirm-modal {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+  width: 300px;
+}
+
+.button-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+

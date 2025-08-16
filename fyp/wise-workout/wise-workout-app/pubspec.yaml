@@ -1,0 +1,227 @@
+name: wise_workout_app
+description: Wise Workout Mobile App
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.17.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  google_sign_in: ^6.1.4
+  googleapis: ^11.0.0
+  sign_in_with_apple: ^7.0.1
+  flutter_local_notifications: ^19.2.1
+  timezone: ^0.10.0 
+  flutter_timezone: ^4.1.1
+  http: ^1.2.1
+  flutter_secure_storage: ^9.2.4
+  provider: ^6.1.0
+  easy_localization: ^3.0.1
+  shared_preferences: ^2.2.3
+  youtube_player_iframe: ^5.2.1
+  confetti: ^0.7.0
+  fl_chart: ^0.64.0
+  flutter_datetime_picker_plus: ^2.0.1
+
+  flutter_fortune_wheel: ^1.2.0
+  blur: ^4.0.2
+  health: ^13.0.1
+  share_plus: ^7.2.1
+  percent_indicator: ^4.2.3
+  circular_countdown_timer: ^0.2.0
+  web_socket_channel: ^2.4.0
+  camera: ^0.10.5+9
+  image: ^4.1.3
+  video_player: ^2.8.0
+  chewie: ^1.11.3
+  syncfusion_flutter_calendar: ^30.1.42
+
+  flutter_facebook_auth: ^7.1.2
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_launcher_icons: ^0.14.3
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/icon.png"
+  adaptive_icon_background: "#FFFFFF"
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/icons/google-icon.png
+    - assets/icons/apple-icon.png
+    - assets/icons/facebook-icon.png
+    - assets/images/questionnaire_bg.png
+    - assets/icons/fitquest-icon.png
+    - assets/icons/dumbbell.jpg
+    - assets/icons/Home.png
+    - assets/icons/Leaderboard.png
+    - assets/icons/Messages.png
+    - assets/icons/Profile.png
+    - assets/images/push-up.jpg
+    - assets/images/squats.jpg
+    - assets/images/plank.jpg
+    - assets/images/jumping_jacks.jpg
+    - assets/workoutImages/strength_training.jpg
+    - assets/workoutImages/yoga_training.jpg
+    - assets/workoutImages/core_training.jpg
+    - assets/exerciseImages/push_up_gif.jpg
+    - assets/exerciseImages/sit_up_gif.jpg
+    - assets/exerciseImages/squat_gif.jpg
+    - assets/exerciseImages/arnold_press_gif.png
+    - assets/exerciseImages/backward_jog_gif.png
+    - assets/exerciseImages/bench_press_gif.png
+    - assets/exerciseImages/bodyweight_squat_gif.png
+    - assets/exerciseImages/bulgarian_split_squat_gif.png
+    - assets/exerciseImages/burpees_gif.png
+    - assets/exerciseImages/butt_kicks_gif.png
+    - assets/exerciseImages/butterfly_stretch_gif.png
+    - assets/exerciseImages/calf_raises_gif.png
+    - assets/exerciseImages/cat_cow_stretch_gif.png
+    - assets/exerciseImages/chest_fly_gif.png
+    - assets/exerciseImages/child's_pose_gif.png
+    - assets/exerciseImages/close_grip_push_up_gif.png
+    - assets/exerciseImages/cobra_pose_gif.png
+    - assets/exerciseImages/decline_push_up_gif.png
+    - assets/exerciseImages/diamond_push_up_gif.png
+    - assets/exerciseImages/downward_facing_dog_gif.png
+    - assets/exerciseImages/dumbbell_pullover_gif.png
+    - assets/exerciseImages/glute_bridge_gif.png
+    - assets/exerciseImages/high_knees_gif.png
+    - assets/exerciseImages/incline_push_up_gif.png
+    - assets/exerciseImages/jogging_gif.png
+    - assets/exerciseImages/jumping_jacks_gif.png
+    - assets/exerciseImages/knee_push_up_gif.png
+    - assets/exerciseImages/lunges_gif.png
+    - assets/exerciseImages/lying_triceps_stretch_gif.png
+    - assets/exerciseImages/mountain_climbers_gif.png
+    - assets/exerciseImages/neck_stretch_gif.png
+    - assets/exerciseImages/overhead_tricep_extension_gif.png
+    - assets/exerciseImages/push_up_gif.png
+    - assets/exerciseImages/quad_stretch_gif.png
+    - assets/exerciseImages/seated_forward_bend_gif.png
+    - assets/exerciseImages/shoulder_press_gif.png
+    - assets/exerciseImages/side_shuffles_gif.png
+    - assets/exerciseImages/skater_hops_gif.png
+    - assets/exerciseImages/squat_gif.jpg
+    - assets/exerciseImages/squats_gif.png
+    - assets/exerciseImages/step_up_gif.png
+    - assets/exerciseImages/step_ups_gif.png
+    - assets/exerciseImages/supine_twist_gif.png
+    - assets/exerciseImages/tricep_dips_gif.png
+    - assets/exerciseImages/triceps_stretch_gif.png
+    - assets/exerciseImages/walking_in_place_gif.png
+    - assets/exerciseImages/wide_push_up_gif.png
+    - assets/exerciseImages/wall_sit_gif.png
+    - assets/avatars/free/free1.png
+    - assets/avatars/free/free2.png
+    - assets/avatars/free/free3.png
+    - assets/avatars/premium/premium2.png
+    - assets/avatars/premium/premium3.png
+    - assets/avatars/premium/premium4.png
+    - assets/avatars/premium/premium5.png
+    - assets/avatars/premium/premium6.png
+    - assets/avatars/premium/premium7.png
+    - assets/background/bg1.jpg
+    - assets/background/bg2.jpg
+    - assets/background/bg3.jpeg
+    - assets/background/bg4.jpg
+    - assets/background/bg5.png
+    - assets/background/bg6.png
+    - assets/background/bg7.png
+    - assets/background/bg8.png
+    - assets/background/bg9.png
+    - assets/background/black.jpg
+    - assets/badges/badge_1.png
+    - assets/badges/badge_2.png
+    - assets/badges/badge_3.png
+    - assets/badges/badge_4.png
+    - assets/badges/badge_5.png
+    - assets/badges/badge_6.png
+    - assets/badges/badge_7.png
+    - assets/badges/badge_8.png
+    - assets/badges/badge_9.png
+    - assets/badges/badge_10.png
+    - assets/badges/badge_11.png
+    - assets/badges/badge_12.png
+    - assets/icons/lock.jpg
+    - assets/exerciseGif/push_up.gif
+    - assets/exerciseGif/squat.gif
+    - assets/exerciseGif/arnold_press.gif
+    - assets/exerciseGif/backward_jog.gif
+    - assets/exerciseGif/bench_press.gif
+    - assets/exerciseGif/bodyweight_squat.gif
+    - assets/exerciseGif/bulgarian_split_squat.gif
+    - assets/exerciseGif/burpees.gif
+    - assets/exerciseGif/butt_kicks.gif
+    - assets/exerciseGif/butterfly_stretch.gif
+    - assets/exerciseGif/calf_raises.gif
+    - assets/exerciseGif/cat_cow_stretch.gif
+    - assets/exerciseGif/chest_fly.gif
+    - assets/exerciseGif/child's_pose.gif
+    - assets/exerciseGif/close_grip_push_up.gif
+    - assets/exerciseGif/cobra_pose.gif
+    - assets/exerciseGif/decline_push_up.gif
+    - assets/exerciseGif/diamond_push_up.gif
+    - assets/exerciseGif/downward_facing_dog.gif
+    - assets/exerciseGif/dumbbell_pullover.gif
+    - assets/exerciseGif/glute_bridge.gif
+    - assets/exerciseGif/high_knees.gif
+    - assets/exerciseGif/incline_push_up.gif
+    - assets/exerciseGif/jogging.gif
+    - assets/exerciseGif/knee_push_up.gif
+    - assets/exerciseGif/lunges.gif
+    - assets/exerciseGif/lying_triceps_stretch.gif
+    - assets/exerciseGif/mountain_climbers.gif
+    - assets/exerciseGif/neck_stretch.gif
+    - assets/exerciseGif/overhead_tricep_extension.gif
+    - assets/exerciseGif/push_up.gif
+    - assets/exerciseGif/quad_stretch.gif
+    - assets/exerciseGif/seated_forward_bend.gif
+    - assets/exerciseGif/shoulder_press.gif
+    - assets/exerciseGif/side_shuffles.gif
+    - assets/exerciseGif/skater_hops.gif
+    - assets/exerciseGif/squat.gif
+    - assets/exerciseGif/squats.gif
+    - assets/exerciseGif/step_up.gif
+    - assets/exerciseGif/step_ups.gif
+    - assets/exerciseGif/supine_twist.gif
+    - assets/exerciseGif/tricep_dips.gif
+    - assets/exerciseGif/triceps_stretch.gif
+    - assets/exerciseGif/walking_in_place.gif
+    - assets/exerciseGif/wall_sit.gif
+    - assets/exerciseGif/wide_push_up.gif
+    - assets/exerciseGif/jumping_jacks.gif
+    - assets/workoutImages/dumbbell_strength.jpg
+    - assets/workoutImages/evening_unwind.jpg
+    - assets/workoutImages/morning_flow_yoga.jpg
+    - assets/workoutImages/power_vinyasa.jpg
+    - assets/workoutImages/bodyweight_leg_blast.jpg
+    - assets/workoutImages/explosive_plyo_legs.jpg
+    - assets/workoutImages/glute_isolation_session.jpg
+    - assets/workoutImages/quick_hiit_circuit.jpg
+    - assets/workoutImages/endurance_cardio_burn.jpg
+    - assets/workoutImages/cardio_kickboxing.jpg
+    - assets/workoutImages/upper_body_blast.jpg
+    - assets/workoutImages/total_body_core_circuit.jpg
+    - assets/workoutImages/calisthenics.jpg
+    - assets/workoutImages/endurance_circuit.jpg
+    - assets/workoutImages/hiit_fat_burner.jpg
+    - assets/workoutImages/quick_cardio_blast.jpg
+    - assets/workoutImages/leg_day_burn.jpg
+    - assets/workoutImages/beginner_leg_routine.jpg
+    - assets/workoutCategory/cardio.jpg
+    - assets/workoutCategory/leg.jpg
+    - assets/workoutCategory/push.jpg
+    - assets/workoutCategory/relaxing.jpg
+    - assets/workoutImages/chest_builder.jpg
+    - assets/workoutImages/triceps_shred.jpg
+    - assets/workoutImages/upper_body_power.jpg
+    - assets/translations/

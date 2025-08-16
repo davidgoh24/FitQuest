@@ -1,0 +1,43 @@
+/* TopBar.css */
+.top-bar {
+  background-color: #002147; /* Navy blue */
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* padding: 10px 20px; */
+  height: 60px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10000;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.topbar-logo {
+  height: 25px;
+  padding-left:25px;
+}
+
+.topbar-search {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  max-width: 400px;
+  width: 100%;
+}
+
+.search-bar-container-topbar{
+  flex:1;
+  /* margin-top: 1rem; */
+  display: flex;
+  align-items: center;
+  border-radius: 999px;
+  background-color:  rgb(255, 255, 255);;
+  padding: 0.25rem 0.25rem;
+  width: 100%;
+  max-width: 700px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}

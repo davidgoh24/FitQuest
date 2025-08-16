@@ -1,0 +1,606 @@
+use FYP;
+CREATE TABLE users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  username VARCHAR(100) NOT NULL UNIQUE,
+  firstName VARCHAR(100),
+  lastName VARCHAR(100),
+  dob DATE DEFAULT NULL,
+  password VARCHAR(255),
+  method ENUM('database', 'google', 'apple') NOT NULL DEFAULT 'database',
+  role ENUM('user', 'admin', 'premium') NOT NULL DEFAULT 'user',
+  premium_until DATETIME DEFAULT NULL,
+  isSuspended BOOLEAN NOT NULL DEFAULT false,
+  tokens INT NOT NULL DEFAULT 0,
+  xp INT NOT NULL DEFAULT 0,
+  avatar_id INT DEFAULT NULL,
+  background_id INT DEFAULT NULL,
+  last_login DATE DEFAULT NULL,
+  login_streak INT NOT NULL DEFAULT 0,
+  language VARCHAR(10) DEFAULT 'en',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (avatar_id) REFERENCES avatars(id) ON DELETE SET NULL,
+  FOREIGN KEY (background_id) REFERENCES backgrounds(id) ON DELETE SET NULL
+);
+CREATE TABLE user_xp_daily (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  xp_amount INT NOT NULL DEFAULT 0,
+  date DATE NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_user_date (user_id, date),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE subscription_history (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    plan ENUM('monthly', 'annual', 'lifetime') NOT NULL,
+    method ENUM('money', 'tokens') NOT NULL,
+    amount DECIMAL(10, 2) DEFAULT NULL,
+    tokens_used INT DEFAULT NULL,
+    start_date DATETIME NOT NULL,
+    end_date DATETIME NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE pending_users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  username VARCHAR(100) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  otp VARCHAR(6) NOT NULL,
+  expires_at DATETIME NOT NULL,
+  failed_attempts INT NOT NULL DEFAULT 0,
+  firstName VARCHAR(100),
+  lastName VARCHAR(100),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE password_resets (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(255) NOT NULL,
+  token VARCHAR(255) NOT NULL,
+  expires_at DATETIME NOT NULL,
+  failed_attempts INT NOT NULL DEFAULT 0
+);
+CREATE TABLE user_preferences (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  height_cm DECIMAL(5,2) NOT NULL,
+  weight_kg DECIMAL(5,2) NOT NULL,
+  gender ENUM('male', 'female') NOT NULL,
+  workout_days VARCHAR(50) DEFAULT NULL,
+  workout_time ENUM(
+    'Quick (e.g. 5 Minutes during Lunch Break)',
+    'Short (10-20 Minutes)',
+    'Medium (25-45 Minutes)',
+    'Long (1 Hour or more)'
+  ) NOT NULL,
+  equipment_pref ENUM('Body Weight', 'With Equipment', 'Both') NOT NULL,
+  fitness_goal ENUM('Lose Weight', 'Build Muscle', 'Improve Endurance', 'Tone Up', 'Improve Flexibility') NOT NULL,
+  fitness_level ENUM('Beginner', 'Intermediate', 'Advanced') NOT NULL,
+  injury VARCHAR(100) DEFAULT NULL,
+  enjoyed_workouts ENUM('Yoga Training', 'Strength Training', 'Cardio Training') DEFAULT NULL,
+  bmi_value DECIMAL(5,2) NOT NULL,
+  submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE TABLE spin_history (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  prize_label VARCHAR(100),
+  prize_type VARCHAR(50),
+  prize_value INT,
+  spun_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE prizes (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  label VARCHAR(100) NOT NULL,
+  type ENUM('tokens', 'freeze', 'avatar', 'background', 'trial', 'none') NOT NULL,
+  value INT NOT NULL
+);
+
+CREATE TABLE avatars (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  image_url VARCHAR(255) NOT NULL,
+  is_premium BOOLEAN DEFAULT false
+);
+CREATE TABLE backgrounds (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  image_url VARCHAR(255) NOT NULL,
+  is_premium BOOLEAN DEFAULT false
+);
+CREATE TABLE messages (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  sender_id INT NOT NULL,
+  receiver_id INT NOT NULL,
+  content TEXT NOT NULL,
+  sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  is_read BOOLEAN NOT NULL DEFAULT false,
+  FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE TABLE friends (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  friend_id INT NOT NULL,
+  status ENUM('pending', 'accepted', 'rejected') NOT NULL DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (friend_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- challenge templates (what challenge can be issued)
+CREATE TABLE challenges (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  type VARCHAR(50) NOT NULL,         -- e.g., 'Push Up Challenge'
+  value INT NOT NULL,                -- e.g., 150
+  unit VARCHAR(32) NOT NULL,         -- e.g., 'Push Ups'
+  duration INT NOT NULL,             -- Default duration (in days/weeks/whatever you use)
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE challenge_invites (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  challenge_id INT NOT NULL,
+  sender_id INT NOT NULL,
+  receiver_id INT NOT NULL,
+  status ENUM('pending', 'accepted', 'rejected') DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  accepted_at DATETIME DEFAULT NULL,
+  expires_at DATETIME DEFAULT NULL,
+  completed_at DATETIME DEFAULT NULL,
+  custom_value INT DEFAULT NULL,           -- Custom target value, if set
+  custom_duration_value INT DEFAULT NULL,  -- Custom duration, if set
+  custom_duration_unit VARCHAR(16) DEFAULT NULL, -- e.g., 'days', 'weeks'
+  FOREIGN KEY (challenge_id) REFERENCES challenges(id),
+  FOREIGN KEY (sender_id) REFERENCES users(id),
+  FOREIGN KEY (receiver_id) REFERENCES users(id)
+);
+
+CREATE TABLE challenge_progress (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  challenge_invite_id INT NOT NULL,
+  user_id INT NOT NULL,
+  progress_value INT DEFAULT 0,
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (challenge_invite_id) REFERENCES challenge_invites(id),
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+
+CREATE TABLE badges (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  description VARCHAR(255),
+  icon_url VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE user_badges (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  badge_id INT NOT NULL,
+  earned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (badge_id) REFERENCES badges(id) ON DELETE CASCADE,
+  UNIQUE KEY unique_user_badge (user_id, badge_id)
+);
+
+CREATE TABLE quests (
+  code VARCHAR(100) PRIMARY KEY,
+  text VARCHAR(255) NOT NULL,
+  xp_reward INT NOT NULL DEFAULT 10
+);
+
+CREATE TABLE user_daily_quests (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  quest_code VARCHAR(100) NOT NULL,
+  quest_date DATE NOT NULL,
+  done BOOLEAN NOT NULL DEFAULT false,
+  claimed BOOLEAN NOT NULL DEFAULT false,
+  completed_at TIMESTAMP DEFAULT NULL,
+  claimed_at TIMESTAMP DEFAULT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (quest_code) REFERENCES quests(code) ON DELETE CASCADE,
+  UNIQUE KEY uq_user_quest_day (user_id, quest_code, quest_date)
+);
+
+CREATE TABLE levels (
+  level INT PRIMARY KEY,
+  xp_required INT NOT NULL,
+  reward_tokens INT DEFAULT 0,
+  badge_id INT DEFAULT NULL
+);
+
+CREATE TABLE workout_categories (
+  category_id INT AUTO_INCREMENT PRIMARY KEY,
+  category_name VARCHAR(255) NOT NULL,
+  category_key VARCHAR(255) NOT NULL UNIQUE,  -- Unique identifier for each category (e.g., 'push', 'cardio')
+  category_description TEXT NOT NULL,
+  image_url VARCHAR(255) DEFAULT NULL  -- Optional image URL for the category
+);
+
+
+CREATE TABLE workouts (
+  workout_id INT AUTO_INCREMENT PRIMARY KEY,
+  workout_name VARCHAR(255) NOT NULL,  -- Name of the workout
+  category_key VARCHAR(255) NOT NULL,  -- The category to which this workout belongs (foreign key)
+  workout_level VARCHAR(50) NOT NULL,  -- Difficulty level (e.g., 'Beginner', 'Intermediate', 'Advanced')
+  workout_description TEXT NOT NULL,  -- Description of the workout
+  FOREIGN KEY (category_key) REFERENCES workout_categories(category_key)  -- Link to category
+);
+
+CREATE TABLE feedback (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  message TEXT DEFAULT NULL,
+  rating INT NOT NULL,
+  liked_features JSON DEFAULT NULL,
+  problems JSON DEFAULT NULL,
+  status ENUM('pending', 'accepted', 'rejected') NOT NULL DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE exercises (
+  exercise_id INT AUTO_INCREMENT PRIMARY KEY,
+  exercise_key VARCHAR(255) NOT NULL UNIQUE,
+  exercise_name VARCHAR(255) NOT NULL,
+  exercise_description TEXT NOT NULL,
+  exercise_sets INT DEFAULT 3,
+  exercise_reps INT NOT NULL,
+  exercise_instructions TEXT NOT NULL,
+  exercise_level VARCHAR(50) DEFAULT NULL,
+  exercise_equipment VARCHAR(100) DEFAULT NULL,
+  exercise_duration INT DEFAULT NULL,  -- Duration in seconds
+  exercise_weight DOUBLE DEFAULT NULL, -- Weight in kg (optional)
+  youtube_url VARCHAR(255) DEFAULT NULL, -- Optional YouTube video link
+  workout_id INT, -- Foreign Key linking to the workouts table
+  calories_burnt_per_rep DECIMAL(6,3) DEFAULT NULL, -- Energy per rep
+  FOREIGN KEY (workout_id) REFERENCES workouts(workout_id)
+);
+
+CREATE TABLE workout_plans (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  plan_title VARCHAR(255),
+  days_json JSON,
+  estimation_text TEXT,
+  created_at DATETIME,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE user_workout_plan (
+  plan_id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  plan_title VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE user_workout_plan_items (
+  item_id INT AUTO_INCREMENT PRIMARY KEY,
+  plan_id INT NOT NULL,
+  exercise_id INT NOT NULL,
+  FOREIGN KEY (plan_id) REFERENCES user_workout_plan(plan_id) ON DELETE CASCADE,
+  FOREIGN KEY (exercise_id) REFERENCES exercises(exercise_id) ON DELETE CASCADE
+);
+
+CREATE TABLE tournaments (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  title VARCHAR(255) NOT NULL,
+  description TEXT NOT NULL,
+  startDate DATETIME,
+  endDate DATETIME,
+  features JSON,
+  target_exercise_pattern VARCHAR(255) DEFAULT NULL, -- e.g. "push up", "squat", "jumping jack"
+  reward_xp_first INT DEFAULT 200,
+  reward_xp_second INT DEFAULT 100,
+  reward_xp_other INT DEFAULT 50,
+  reward_tokens_first INT DEFAULT 200,
+  reward_tokens_second INT DEFAULT 100,
+  reward_tokens_other INT DEFAULT 20,
+  rewarded BOOLEAN DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE tournament_participants (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  tournament_id INT NOT NULL,
+  user_id INT NOT NULL,
+  progress INT DEFAULT 0,
+  joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (tournament_id) REFERENCES tournaments(id),
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE workout_sessions (
+  session_id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  workout_id INT,
+  start_time DATETIME NOT NULL,
+  end_time DATETIME,
+  duration INT, -- in seconds
+  calories_burned DECIMAL(5,2),
+  notes TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (workout_id) REFERENCES workouts(workout_id) ON DELETE SET NULL
+);
+
+CREATE TABLE exercise_logs (
+  log_id INT AUTO_INCREMENT PRIMARY KEY,
+  session_id INT NOT NULL,
+  exercise_key VARCHAR(255),
+  exercise_name VARCHAR(255),
+  sets_data JSON, -- Store completed sets data
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (session_id) REFERENCES workout_sessions(session_id) ON DELETE CASCADE,
+  FOREIGN KEY (exercise_key) REFERENCES exercises(exercise_key) ON DELETE SET NULL
+);
+
+INSERT INTO avatars (name, image_url, is_premium)
+VALUES 
+  ('free1', 'assets/avatars/free/free1.png', false),
+  ('free2', 'assets/avatars/free/free2.png', false),
+  ('free3', 'assets/avatars/free/free3.png', false),
+  ('premium2', 'assets/avatars/premium/premium2.png', true),
+  ('premium3', 'assets/avatars/premium/premium3.png', true),
+  ('premium4', 'assets/avatars/premium/premium4.png', true),
+  ('premium5', 'assets/avatars/premium/premium5.png', true),
+  ('premium6', 'assets/avatars/premium/premium6.png', true),
+  ('premium7', 'assets/avatars/premium/premium7.png', true);
+
+
+
+INSERT INTO backgrounds (name, image_url, is_premium)
+VALUES 
+  ('bg1', 'assets/background/bg1.jpg', false),
+  ('bg2', 'assets/background/bg2.jpg', false),
+  ('bg3', 'assets/background/bg3.jpeg', false),
+  ('bg4', 'assets/background/bg4.jpg', false),
+  ('bg5', 'assets/background/bg5.png', false),
+  ('bg6', 'assets/background/bg6.png', false),
+  ('bg7', 'assets/background/bg7.png', false),
+  ('bg8', 'assets/background/bg8.png', false),
+  ('bg9', 'assets/background/bg9.png', false);
+
+INSERT INTO prizes (label, type, value) VALUES
+('10 Tokens', 'tokens', 10),
+('Nothing', 'none', 0),
+('50 Tokens', 'tokens', 50),
+('Nothing', 'none', 0),
+('5 Tokens', 'tokens', 5),
+('20 Tokens', 'tokens', 20),
+('30 Tokens', 'tokens', 30),
+('1 Day Trial', 'trial', 1),
+('100 Tokens', 'tokens', 100),
+('Nothing', 'none', 0);
+
+INSERT INTO badges (id, name, description, icon_url) VALUES
+(1, 'First Workout', 'Complete your first workout session to earn this badge.', 'assets/badges/badge_1.png'),
+(2, '7-Day Streak', 'Login for 7 consecutive days to earn this badge.', 'assets/badges/badge_2.png'),
+(3, '10 Workouts', 'Complete 10 workout sessions to earn this badge.', 'assets/badges/badge_3.png'),
+(4, '1000 Calories Burned', 'Burn a total of 1000 calories to earn this badge.', 'assets/badges/badge_4.png'),
+(5, 'Lucky Starter', 'Complete your first spin to unlock this badge.', 'assets/badges/badge_5.png'),
+(6, 'Friend Maker', 'Add your first friend to earn this badge.', 'assets/badges/badge_6.png'),
+(7, 'Tournament Winner', 'Win your first tournament to earn this badge.', 'assets/badges/badge_7.png'),
+(8, 'Premium Champion', 'Upgrade to premium membership to earn this badge.', 'assets/badges/badge_8.png'),
+(10, '50 Workouts', 'Complete 50 workout sessions to earn this badge.', 'assets/badges/badge_10.png'),
+(11, 'Spin Champion', 'Spin the lucky spin 30 times to earn this badge.', 'assets/badges/badge_11.png'),
+(12, '30-Day Streak', 'Login for 30 consecutive days to earn this badge.', 'assets/badges/badge_12.png');
+
+INSERT INTO quests (code, text, xp_reward) VALUES
+('ANY_WORKOUT', 'Finish any workout', 15),
+('SPIN_LUCKY', 'Spin the Lucky Spin', 10),
+('MESSAGE_FRIEND', 'Message a friend', 10),
+('DAILY_LOGIN', 'Login today', 7);
+
+INSERT INTO levels (level, xp_required, reward_tokens, badge_id) VALUES
+(1, 0, 0, NULL),
+(2, 100, 10, 1),
+(3, 300, 20, 2),
+(4, 600, 30, NULL),
+(5, 1000, 50, 3);
+
+INSERT INTO workout_categories (category_name, category_key, category_description, image_url)
+VALUES
+  ('Push', 'push', 'Upper body pushing movements: chest, shoulders, triceps.', 'assets/workoutCategory/push.jpg'),
+  ('Cardio', 'cardio', 'Cardiovascular training for endurance and fat burn.', 'assets/workoutCategory/cardio.jpg'),
+  ('Leg', 'leg', 'Lower body strength: legs, glutes, hamstrings.', 'assets/workoutCategory/leg.jpg'),
+  ('Relaxing', 'relaxing', 'Flexibility, stretching, and relaxation.', 'assets/workoutCategory/relaxing.jpg');
+
+INSERT INTO workouts (workout_name, category_key, workout_level, workout_description)
+VALUES
+  ('Chest Builder', 'push', 'Intermediate', 'Focus on upper body pushing strength with this chest-centric workout.'),
+  ('Triceps Shred', 'push', 'Advanced', 'Blast your triceps with explosive push movements and dips.'),
+  ('Upper Body Power', 'push', 'Beginner', 'A beginner-friendly push workout to build foundational strength.'),
+  ('HIIT Fat Burner', 'cardio', 'Advanced', 'High-intensity intervals to torch calories and boost endurance.'),
+  ('Quick Cardio Blast', 'cardio', 'Beginner', 'Short and effective cardio session to get your heart rate up.'),
+  ('Leg Day Burn', 'leg', 'Advanced', 'A powerful lower-body session focused on strength and hypertrophy.'),
+  ('Morning Flow Yoga', 'relaxing', 'Beginner', 'Gentle yoga sequence to energize your day and improve flexibility.'),
+  ('Evening Unwind', 'relaxing', 'Intermediate', 'Wind down with stretches and breathwork to calm your body and mind.');
+
+INSERT INTO exercises (
+    exercise_key, exercise_name, exercise_description, exercise_sets, exercise_reps,
+    exercise_instructions, exercise_level, exercise_equipment, exercise_duration,
+    youtube_url, workout_id, calories_burnt_per_rep
+) VALUES
+('pushexercises_1', 'Push Up', 'A basic bodyweight pushing exercise.', 3, 12, 'Keep your back straight, lower until chest nearly touches the floor, then push up.', 'Beginner', 'None', NULL, 'https://www.youtube.com/watch?v=IODxDxX7oi4', 1, 0.4),
+('pushexercises_2', 'Incline Push Up', 'Push up with hands on an elevated surface.', 3, 10, 'Place hands on bench, keep body straight, lower and push up.', 'Beginner', 'Bench', NULL, 'https://www.youtube.com/watch?v=8SbXgQqbOoU', 1, 0.35),
+('pushexercises_3', 'Decline Push Up', 'Push up with feet elevated, targets upper chest.', 3, 8, 'Feet on bench, lower chest to ground, push up.', 'Intermediate', 'Bench', NULL, 'https://www.youtube.com/watch?v=UwRLWMcOdwI', 1, 0.5),
+('pushexercises_4', 'Knee Push Up', 'Modified push up for beginners using knees on the ground.', 3, 12, 'Keep knees on the ground, lower chest to floor, push up.', 'Beginner', 'None', NULL, 'https://www.youtube.com/watch?v=NEdLZ8FzK2g', 1, 0.28),
+('pushexercises_5', 'Wide Push Up', 'Push up with hands placed wider than shoulders.', 3, 10, 'Place hands wide, lower chest, push up.', 'Intermediate', 'None', NULL, 'https://www.youtube.com/watch?v=U9x0Gz4NBiA', 1, 0.45),
+
+('tricepexercises_1', 'Tricep Dips', 'Bodyweight exercise focusing on the triceps.', 3, 15, 'Lower your body by bending your elbows, then push back up.', 'Intermediate', 'None', NULL, 'https://www.youtube.com/watch?v=6kALZikXxLc', 2, 0.45),
+('tricepexercises_2', 'Overhead Tricep Extension', 'Isolates the triceps with weight.', 3, 12, 'Hold dumbbell overhead, lower behind head, extend.', 'Beginner', 'Dumbbell', NULL, 'https://www.youtube.com/watch?v=_gsUck-7M74', 2, 0.25),
+('tricepexercises_3', 'Diamond Push Up', 'Push up with hands close together to target triceps.', 3, 10, 'Form a diamond with hands, lower chest, push up.', 'Advanced', 'None', NULL, 'https://www.youtube.com/watch?v=J0DnG1_S92I', 2, 0.6),
+('tricepexercises_4', 'Lying Triceps Stretch', 'Gentle stretch for the triceps while lying down.', 3, 12, 'Lie on a bench or mat, hold one elbow with the opposite hand, and gently pull it behind your head to stretch the triceps. Switch arms.', 'Beginner', 'Bench or Mat', NULL, 'https://www.youtube.com/watch?v=2h5l4t5A2RM', 2, 0.35),
+('tricepexercises_5', 'Close Grip Push Up', 'Push up with hands close together, elbows tight to body.', 3, 10, 'Keep elbows close, lower chest, push up.', 'Intermediate', 'None', NULL, 'https://www.youtube.com/watch?v=7R_T1I6QHqM', 2, 0.5),
+
+('chestshoulder_1', 'Bench Press', 'Weight-lifting exercise focusing on the chest and shoulders.', 3, 10, 'Lower the bar to your chest and push it back up.', 'Advanced', 'Barbell', NULL, 'https://www.youtube.com/watch?v=gRVjAtPip0Y', 3, 0.5),
+('chestshoulder_2', 'Chest Fly', 'Isolate the chest using dumbbells.', 3, 12, 'Lie on bench, open arms wide, squeeze to center.', 'Intermediate', 'Dumbbells', NULL, 'https://www.youtube.com/watch?v=eozdVDA78K0', 3, 0.35),
+('chestshoulder_3', 'Shoulder Press', 'Overhead pressing exercise for delts.', 3, 10, 'Press dumbbells overhead while seated.', 'Beginner', 'Dumbbells', NULL, 'https://www.youtube.com/watch?v=B-aVuyhvLHU', 3, 0.4),
+('chestshoulder_4', 'Dumbbell Pullover', 'Works chest and lats with a dumbbell.', 3, 10, 'Lie on bench, hold dumbbell, lower behind head, pull over chest.', 'Intermediate', 'Dumbbell', NULL, 'https://www.youtube.com/watch?v=p0vQ6Qn1nfE', 3, 0.32),
+('chestshoulder_5', 'Arnold Press', 'A shoulder press variation rotating dumbbells.', 3, 10, 'Rotate dumbbells during press.', 'Intermediate', 'Dumbbells', NULL, 'https://www.youtube.com/watch?v=vj2w851ZHRM', 3, 0.44),
+
+('cardioexercises_1', 'Walking in Place', 'Low-impact cardio exercise for improving stamina and burning calories.', 1, 20, 'March or walk in place at a steady pace, lifting knees slightly and swinging arms.', 'Beginner', 'None', 20, 'https://www.youtube.com/watch?v=QOVaHwm-Q6U', 4, 0.8),
+('cardioexercises_2', 'Mountain Climbers', 'Full-body exercise for cardio.', 3, 20, 'In plank, drive knees to chest quickly.', 'Beginner', 'None', 120, 'https://www.youtube.com/watch?v=nmwgirgXLYM', 4, 0.5),
+('cardioexercises_3', 'Burpees', 'Explosive cardio and strength movement.', 3, 12, 'Drop into squat, jump feet back, do a push up, jump up.', 'Intermediate', 'None', 180, 'https://www.youtube.com/watch?v=TU8QYVW0gDU', 4, 1.0),
+('cardioexercises_4', 'Jumping Jacks', 'Full body cardio warm up.', 3, 30, 'Jump feet out, arms overhead, return.', 'Beginner', 'None', 90, 'https://www.youtube.com/watch?v=c4DAnQ6DtF8', 4, 0.18),
+('cardioexercises_5', 'Skater Hops', 'Plyometric side-to-side cardio movement.', 3, 20, 'Jump side to side, landing on one foot each time.', 'Intermediate', 'None', 60, 'https://www.youtube.com/watch?v=8ZuVVK1GrvU', 4, 0.23),
+
+('joggingcardio_1', 'Jogging', 'A light running exercise for cardiovascular endurance.', 3, 30, 'Jog at a steady pace, keeping your form upright.', 'Beginner', 'None', 1800, 'https://www.youtube.com/watch?v=9Jv3hZ2K5lo', 5, 0.12),
+('joggingcardio_2', 'Butt Kicks', 'Warm-up cardio to activate hamstrings.', 3, 25, 'Run in place, kick heels toward glutes.', 'Beginner', 'None', 60, 'https://www.youtube.com/watch?v=Jk-Kn5Aebac', 5, 0.18),
+('joggingcardio_3', 'High Knees', 'Raise knees high while jogging in place.', 3, 30, 'Lift knees to waist level, alternate quickly.', 'Intermediate', 'None', 90, 'https://www.youtube.com/watch?v=8opcQdC-V-U', 5, 0.22),
+('joggingcardio_4', 'Side Shuffles', 'Lateral movement for cardio and agility.', 3, 20, 'Shuffle sideways, keep low stance.', 'Beginner', 'None', 60, 'https://www.youtube.com/watch?v=QnL1Wmb7L44', 5, 0.16),
+('joggingcardio_5', 'Backward Jog', 'Jogging in reverse to activate different muscles.', 3, 20, 'Jog backwards carefully for the set duration.', 'Beginner', 'None', 60, 'https://www.youtube.com/watch?v=ZZYwLzQX5ZQ', 5, 0.13),
+
+('legexercises_1', 'Squats', 'A fundamental lower body exercise that targets quads, hamstrings, and glutes.', 3, 15, 'Keep your back straight, lower to parallel, and return to standing position.', 'Advanced', 'None', NULL, 'https://www.youtube.com/watch?v=UXJrBgI2RxA', 7, 0.4),
+('legexercises_2', 'Lunges', 'Strengthens legs and glutes.', 3, 12, 'Step forward, lower body, push back to start.', 'Beginner', 'None', NULL, 'https://www.youtube.com/watch?v=QOVaHwm-Q6U', 7, 0.38),
+('legexercises_3', 'Bulgarian Split Squat', 'Single leg squat variation for lower body.', 3, 10, 'Place back foot on bench, squat with front leg.', 'Intermediate', 'Bench', NULL, 'https://www.youtube.com/watch?v=2C-uNgKwPLE', 7, 0.44),
+('legexercises_4', 'Step Ups', 'Step onto bench, strengthens legs.', 3, 12, 'Step up onto bench, alternate legs.', 'Beginner', 'Bench', NULL, 'https://www.youtube.com/watch?v=dQqApCGd5Ss', 7, 0.36),
+('legexercises_5', 'Wall Sit', 'Isometric hold for thighs and glutes.', 2, 1, 'Sit against wall, thighs parallel to ground, hold for 45 seconds.', 'Beginner', 'None', 45, 'https://www.youtube.com/watch?v=y-wV4Venusw', 7, 3.0),
+
+('relaxexercises_1', 'Downward Facing Dog', 'Full-body stretch for calves, hamstrings, shoulders; gently energizing.', 1, 1, 'From tabletop, tuck toes and lift hips up and back. Keep knees softly bent if tight; press through hands and lengthen spine. Hold for 60 seconds with steady breaths.', 'Beginner', 'Yoga Mat', 60, 'https://www.youtube.com/watch?v=ayQoxw8sRTk', 9, 2),
+('relaxexercises_2', 'Child''s Pose', 'Restorative pose for relaxation.', 1, 1, 'Kneel, sit back on heels, stretch arms forward for 40 seconds.', 'Beginner', 'Yoga Mat', 40, 'https://www.youtube.com/watch?v=QvB3qTqdFUs', 9, 1.67),
+('relaxexercises_3', 'Cat Cow Stretch', 'Dynamic stretch for spine.', 2, 8, 'Alternate between arching and rounding back on hands and knees, 5 seconds per rep.', 'Beginner', 'None', 40, 'https://www.youtube.com/watch?v=w3mKUNBrhXw', 9, 0.17),
+('relaxexercises_4', 'Supine Twist', 'Lying spinal twist for back and hips.', 1, 1, 'Lie on back, twist knees to side, hold for 60 seconds.', 'Beginner', 'Yoga Mat', 60, 'https://www.youtube.com/watch?v=UnTEc6ZrGyo', 9, 2.5),
+('relaxexercises_5', 'Cobra Pose', 'Gentle backbend for spine and chest.', 1, 1, 'Lie on stomach, hands under shoulders, lift chest and hold for 45 seconds.', 'Beginner', 'Yoga Mat', 45, 'https://www.youtube.com/watch?v=jdJzDZ1Gr-I', 9, 1.88),
+
+('relaxstretch_1', 'Triceps Stretch', 'Stretches triceps and shoulders to relieve tension.', 1, 1, 'Raise right arm overhead, bend elbow, and place hand down between shoulder blades. Use left hand to gently push elbow down. Hold 60 seconds, switch sides.', 'Intermediate', 'None', 60, 'https://www.youtube.com/watch?v=5W0oM7sLXkw', 10, 2.5),
+('relaxstretch_2', 'Neck Stretch', 'Relieves tension in the neck.', 1, 1, 'Gently tilt head side to side, hold each stretch for 30 seconds.', 'Beginner', 'None', 30, 'https://www.youtube.com/watch?v=QZKqj3d0eA8', 10, 1.25),
+('relaxstretch_3', 'Seated Forward Bend', 'Stretches hamstrings and back.', 1, 1, 'Sit, extend legs, reach forward, hold for 45 seconds.', 'Beginner', 'None', 45, 'https://www.youtube.com/watch?v=bLd4G9yPBDo', 10, 1.88),
+('relaxstretch_4', 'Quad Stretch', 'Standing stretch for quadriceps.', 1, 1, 'Stand, grab ankle, pull foot toward buttocks for 45 seconds.', 'Beginner', 'None', 45, 'https://www.youtube.com/watch?v=sXxqkQIkFZ4', 10, 1.88),
+('relaxstretch_5', 'Butterfly Stretch', 'Stretch for inner thighs and hips.', 1, 1, 'Sit, press soles of feet together, hold for 60 seconds.', 'Beginner', 'None', 60, 'https://www.youtube.com/watch?v=QGzRDa5dmz4', 10, 2.5);
+
+INSERT INTO tournaments 
+(title, description, startDate, endDate, features, target_exercise_pattern) 
+VALUES
+(
+  'Ultimate Warrior Cup',
+  'Compete with the best in endurance and power.',
+  '2025-08-01 00:00:00',
+  '2025-08-15 23:59:59',
+  JSON_ARRAY('Daily Leaderboards', 'Weekly Rewards', 'Muscle Power Rounds'),
+  'push up'
+),
+(
+  'Speed & Agility Showdown',
+  'Boost your reaction time and movement speed.',
+  '2025-08-05 00:00:00',
+  '2025-08-18 23:59:59',
+  JSON_ARRAY('Sprint Events', 'Agility Ladder Test', 'Time Trials'),
+  'squat'
+),
+(
+  'Flex Master Tournament',
+  'Show off your strength and flexibility.',
+  '2025-08-10 00:00:00',
+  '2025-08-20 23:59:59',
+  JSON_ARRAY('Heavy Lifts', 'Balance Tasks', 'Flexibility Scoring'),
+  'jumping jack'
+);
+
+INSERT INTO challenges (type, value, unit, duration)
+VALUES
+  ('Push Up Challenge', 150, 'Push Ups', 7),
+  ('Squat Challenge', 75, 'Squats', 3),
+  ('Jumping Jack Blitz', 100, 'Jumping Jacks', 5);
+DROP EVENT IF EXISTS reward_expired_tournaments;
+DELIMITER $$
+
+CREATE EVENT reward_expired_tournaments
+ON SCHEDULE EVERY 1 DAY
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+  START TRANSACTION;
+
+  UPDATE users u
+  JOIN (
+    SELECT tp.user_id,
+           t.id AS tournament_id,
+           RANK() OVER (PARTITION BY t.id ORDER BY tp.progress DESC, tp.joined_at ASC) AS rank_pos,
+           t.reward_xp_first,
+           t.reward_xp_second,
+           t.reward_xp_other,
+           t.reward_tokens_first,
+           t.reward_tokens_second,
+           t.reward_tokens_other
+    FROM tournaments t
+    JOIN tournament_participants tp ON t.id = tp.tournament_id
+    WHERE t.endDate < NOW()
+      AND t.rewarded = 0
+  ) ranked ON u.id = ranked.user_id
+  SET 
+    u.xp = u.xp + CASE ranked.rank_pos
+                    WHEN 1 THEN ranked.reward_xp_first
+                    WHEN 2 THEN ranked.reward_xp_second
+                    ELSE ranked.reward_xp_other
+                  END,
+    u.tokens = u.tokens + CASE ranked.rank_pos
+                    WHEN 1 THEN ranked.reward_tokens_first
+                    WHEN 2 THEN ranked.reward_tokens_second
+                    ELSE ranked.reward_tokens_other
+                  END;
+
+  INSERT IGNORE INTO user_badges (user_id, badge_id, earned_at)
+  SELECT tp.user_id, 7, NOW()
+  FROM tournaments t
+  JOIN tournament_participants tp ON t.id = tp.tournament_id
+  WHERE t.endDate < NOW()
+    AND t.rewarded = 0
+    AND tp.user_id IN (
+      SELECT user_id
+      FROM (
+        SELECT tp2.user_id,
+               RANK() OVER (PARTITION BY t2.id ORDER BY tp2.progress DESC, tp2.joined_at ASC) AS rank_pos
+        FROM tournaments t2
+        JOIN tournament_participants tp2 ON t2.id = tp2.tournament_id
+        WHERE t2.endDate < NOW()
+          AND t2.rewarded = 0
+      ) ranked2
+      WHERE rank_pos = 1
+    );
+
+  UPDATE tournaments
+  SET rewarded = 1
+  WHERE endDate < NOW()
+    AND rewarded = 0;
+
+  COMMIT;
+END$$
+
+DELIMITER ;
+
+
+DELIMITER $$
+
+CREATE TRIGGER track_xp_daily
+AFTER UPDATE ON users
+FOR EACH ROW
+BEGIN
+  DECLARE delta INT;
+  SET delta = NEW.xp - OLD.xp;
+  
+  IF delta > 0 THEN
+    INSERT INTO user_xp_daily (user_id, xp_amount, date)
+    VALUES (NEW.id, delta, CURDATE())
+    ON DUPLICATE KEY UPDATE
+      xp_amount = xp_amount + delta,
+      updated_at = CURRENT_TIMESTAMP;
+  END IF;
+END$$
+
+DELIMITER ;

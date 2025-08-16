@@ -1,0 +1,73 @@
+.tournament-container {
+  padding: 2rem;
+  background-color: #f9f6ef;
+  font-family: 'Poppins', sans-serif;
+}
+
+.tournament-table {
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  border-collapse: collapse;
+}
+
+.tournament-table th,
+.tournament-table td {
+  padding: 0.85rem 1rem;
+  text-align: left;
+  font-size: 14px;
+}
+
+.tournament-table th {
+  background-color: #001f5f;
+  color: white;
+  font-weight: 600;
+}
+
+.user-header-row h2 {
+    font-size: 20px;
+    margin-bottom: 1rem;
+}
+
+/* .badge {
+  padding: 0.3rem 2rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.badge.ongoing {
+  background-color: #d1f7d6;
+  color: #2e7d32;
+}
+
+.badge.completed {
+  background-color: #f5d9e0;
+  color: #b71c1c;
+} */
+
+.tournament-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 99999; /* ensures it's the topmost */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tournament-modal-content {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 720px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  z-index: 100000;
+  position: relative;
+}

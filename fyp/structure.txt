@@ -1,0 +1,55 @@
+wise-workout-backend/
+├── controllers/
+│   └── userController.js
+│   └── workoutController.js
+│   └── competitionController.js
+├── routes/
+│   └── userRoutes.js
+│   └── workoutRoutes.js
+│   └── competitionRoutes.js
+├── entities/
+│   └── userEntity.js
+│   └── workoutEntity.js
+│   └── competitionEntity.js
+├── middlewares/
+│   └── authMiddleware.js
+│   └── sanitizeInput.js
+├── services/
+│   └── fitnessPlanService.js
+│   └── reminderService.js
+├── models/
+│   └── User.js
+│   └── Workout.js
+│   └── Competition.js
+├── utils/
+│   └── cookieAuth.js
+│   └── analytics.js
+├── config/
+│   └── db.js
+│   └── auth.js
+├── app.js
+├── .env
+└── package.json
+
+wise-workout-app/
+├── lib/
+│   ├── screens/
+│   │   └── login_screen.dart
+│   │   └── home_screen.dart
+│   │   └── workout_tracker.dart
+│   │   └── competition_screen.dart
+│   ├── services/
+│   │   └── api_service.dart
+│   │   └── auth_service.dart
+│   ├── widgets/
+│   │   └── workout_card.dart
+│   │   └── competition_card.dart
+│   ├── utils/
+│   │   └── reminder_util.dart
+│   │   └── validator.dart
+│   ├── themes/
+│   │   └── app_theme.dart
+│   └── main.dart
+├── android/
+├── ios/
+├── pubspec.yaml
